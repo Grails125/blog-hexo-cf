@@ -1,6 +1,6 @@
 /**
- * 文章编辑器 - 使用简洁的 Markdown 编辑器
- * GET /admin/editor - Markdown 编辑器
+ * 文章编辑器 - 集成 doocs/md
+ * GET /admin/editor - 使用 doocs/md 在线编辑器
  */
 
 const editorHTML = `<!DOCTYPE html>
@@ -9,11 +9,6 @@ const editorHTML = `<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文章编辑器 - 博客后台</title>
-    <!-- EasyMDE - 简洁强大的 Markdown 编辑器 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
-    <!-- Marked.js for preview -->
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -76,20 +71,21 @@ const editorHTML = `<!DOCTYPE html>
             border: 1px solid rgba(255,255,255,0.3);
         }
         
+        .btn-get {
+            background: #ff9800;
+            color: white;
+        }
+        
         .meta-panel {
             background: white;
-            padding: 20px 30px;
+            padding: 15px 30px;
             border-bottom: 1px solid #e0e0e0;
         }
         
         .meta-row {
             display: flex;
-            gap: 20px;
-            margin-bottom: 15px;
-        }
-        
-        .meta-row:last-child {
-            margin-bottom: 0;
+            gap: 15px;
+            align-items: flex-end;
         }
         
         .input-group {
@@ -99,14 +95,14 @@ const editorHTML = `<!DOCTYPE html>
         .input-group label {
             display: block;
             margin-bottom: 5px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             color: #555;
         }
         
         .input-group input {
             width: 100%;
-            padding: 10px;
+            padding: 8px 12px;
             border: 1px solid #ddd;
             border-radius: 6px;
             font-size: 14px;
@@ -118,57 +114,21 @@ const editorHTML = `<!DOCTYPE html>
         }
         
         #title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
         }
         
         .editor-container {
             flex: 1;
-            padding: 20px 30px;
-            overflow: auto;
+            position: relative;
+            overflow: hidden;
             background: white;
         }
         
-        /* EasyMDE 自定义样式 */
-        .EasyMDEContainer {
+        #doocs-md-iframe {
+            width: 100%;
             height: 100%;
-        }
-        
-        .EasyMDEContainer .CodeMirror {
-            height: calc(100vh - 280px);
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 15px;
-            line-height: 1.6;
-        }
-        
-        .editor-toolbar {
-            border: 1px solid #e0e0e0;
-            border-bottom: none;
-            border-radius: 8px 8px 0 0;
-            background: #fafafa;
-        }
-        
-        .editor-toolbar button {
-            color: #555 !important;
-        }
-        
-        .editor-toolbar button:hover {
-            background: #e0e0e0 !important;
-            border-color: #e0e0e0 !important;
-        }
-        
-        .editor-toolbar.fullscreen {
-            background: #fafafa;
-        }
-        
-        .CodeMirror-fullscreen {
-            z-index: 999;
-        }
-        
-        .editor-preview-side {
-            border: 1px solid #e0e0e0;
-            border-left: none;
+            border: none;
         }
         
         .loading {
@@ -189,37 +149,49 @@ const editorHTML = `<!DOCTYPE html>
         .loading.show {
             display: flex;
         }
+        
+        .tip {
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px 15px;
+            font-size: 13px;
+            border-left: 4px solid #ffc107;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>✏️ 文章编辑器</h1>
+        <h1>✏️ 文章编辑器 (doocs/md)</h1>
         <div class="header-actions">
             <button class="btn btn-back" onclick="goBack()">← 返回</button>
+            <button class="btn btn-get" onclick="getContent()">📥 获取内容</button>
             <button class="btn btn-save" onclick="saveDraft()">💾 保存草稿</button>
             <button class="btn btn-publish" onclick="publish()">🚀 发布</button>
         </div>
     </div>
     
     <div class="meta-panel">
-        <div class="meta-row">
+        <div class="tip">
+            💡 提示：在下方编辑器中编写完成后，点击"获取内容"按钮将内容同步到本系统，然后再保存或发布。
+        </div>
+        <div class="meta-row" style="margin-top: 15px;">
             <div class="input-group" style="flex: 2;">
                 <label for="title">标题</label>
                 <input type="text" id="title" placeholder="输入文章标题">
             </div>
             <div class="input-group">
                 <label for="category">分类</label>
-                <input type="text" id="category" placeholder="例如：技术、生活">
+                <input type="text" id="category" placeholder="例如：技术">
             </div>
             <div class="input-group">
-                <label for="tags">标签（用逗号分隔）</label>
+                <label for="tags">标签（逗号分隔）</label>
                 <input type="text" id="tags" placeholder="例如：JavaScript, React">
             </div>
         </div>
     </div>
     
     <div class="editor-container">
-        <textarea id="markdown-editor"></textarea>
+        <iframe id="doocs-md-iframe" src="https://md.doocs.org" allow="clipboard-write"></iframe>
     </div>
     
     <div class="loading" id="loading">
@@ -233,37 +205,11 @@ const editorHTML = `<!DOCTYPE html>
         }
         
         let currentPostId = null;
-        let easyMDE = null;
+        let cachedContent = '';
         
         // 获取 URL 参数
         const urlParams = new URLSearchParams(window.location.search);
         const editId = urlParams.get('id');
-        
-        // 初始化 EasyMDE 编辑器
-        easyMDE = new EasyMDE({
-            element: document.getElementById('markdown-editor'),
-            autofocus: true,
-            autosave: {
-                enabled: true,
-                uniqueId: 'blog-editor-autosave',
-                delay: 10000,
-            },
-            spellChecker: false,
-            placeholder: '在这里使用 Markdown 编写文章内容...',
-            toolbar: [
-                'bold', 'italic', 'heading', '|',
-                'quote', 'unordered-list', 'ordered-list', '|',
-                'link', 'image', 'code', 'table', '|',
-                'preview', 'side-by-side', 'fullscreen', '|',
-                'guide'
-            ],
-            previewRender: function(plainText) {
-                return marked.parse(plainText);
-            },
-            renderingConfig: {
-                codeSyntaxHighlighting: true,
-            },
-        });
         
         // 如果是编辑模式，加载文章
         if (editId) {
@@ -282,10 +228,21 @@ const editorHTML = `<!DOCTYPE html>
                     document.getElementById('title').value = post.title;
                     document.getElementById('category').value = post.category || '';
                     document.getElementById('tags').value = (post.tags || []).join(', ');
-                    easyMDE.value(post.content);
+                    cachedContent = post.content;
+                    
+                    alert('文章元数据已加载！\\n\\n请在编辑器中手动粘贴以下内容：\\n\\n' + post.content.substring(0, 100) + '...');
                 }
             } catch (error) {
                 alert('加载文章失败');
+            }
+        }
+        
+        // 获取编辑器内容
+        function getContent() {
+            const content = prompt('请从 doocs/md 编辑器中复制 Markdown 内容，然后粘贴到这里：', cachedContent);
+            if (content !== null) {
+                cachedContent = content;
+                alert('内容已获取！现在可以保存或发布了。');
             }
         }
         
@@ -306,7 +263,7 @@ const editorHTML = `<!DOCTYPE html>
             const category = document.getElementById('category').value.trim();
             const tagsInput = document.getElementById('tags').value.trim();
             const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()) : [];
-            const content = easyMDE.value().trim();
+            const content = cachedContent.trim();
             
             if (!title) {
                 alert('请输入标题');
@@ -314,7 +271,7 @@ const editorHTML = `<!DOCTYPE html>
             }
             
             if (!content) {
-                alert('请输入内容');
+                alert('请先点击"获取内容"按钮获取编辑器中的内容');
                 return;
             }
             
@@ -349,8 +306,6 @@ const editorHTML = `<!DOCTYPE html>
                     if (!currentPostId) {
                         currentPostId = data.data.id;
                     }
-                    // 清除自动保存
-                    easyMDE.clearAutosavedValue();
                     window.location.href = '/admin/dashboard';
                 } else {
                     alert('保存失败：' + data.error);
@@ -365,12 +320,11 @@ const editorHTML = `<!DOCTYPE html>
         // 返回
         function goBack() {
             if (confirm('确定要返回吗？未保存的内容将丢失。')) {
-                easyMDE.clearAutosavedValue();
                 window.location.href = '/admin/dashboard';
             }
         }
         
-        // 快捷键保存
+        // 快捷键
         document.addEventListener('keydown', function(e) {
             if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                 e.preventDefault();
