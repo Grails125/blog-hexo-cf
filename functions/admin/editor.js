@@ -1,6 +1,6 @@
 /**
- * 文章编辑器 - 集成 doocs/md
- * GET /admin/editor - 使用 doocs/md 编辑器
+ * 文章编辑器 - 使用简洁的 Markdown 编辑器
+ * GET /admin/editor - Markdown 编辑器
  */
 
 const editorHTML = `<!DOCTYPE html>
@@ -9,6 +9,11 @@ const editorHTML = `<!DOCTYPE html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文章编辑器 - 博客后台</title>
+    <!-- EasyMDE - 简洁强大的 Markdown 编辑器 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/easymde/dist/easymde.min.js"></script>
+    <!-- Marked.js for preview -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -119,14 +124,51 @@ const editorHTML = `<!DOCTYPE html>
         
         .editor-container {
             flex: 1;
-            position: relative;
-            overflow: hidden;
+            padding: 20px 30px;
+            overflow: auto;
+            background: white;
         }
         
-        #md-editor-iframe {
-            width: 100%;
+        /* EasyMDE 自定义样式 */
+        .EasyMDEContainer {
             height: 100%;
-            border: none;
+        }
+        
+        .EasyMDEContainer .CodeMirror {
+            height: calc(100vh - 280px);
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        
+        .editor-toolbar {
+            border: 1px solid #e0e0e0;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            background: #fafafa;
+        }
+        
+        .editor-toolbar button {
+            color: #555 !important;
+        }
+        
+        .editor-toolbar button:hover {
+            background: #e0e0e0 !important;
+            border-color: #e0e0e0 !important;
+        }
+        
+        .editor-toolbar.fullscreen {
+            background: #fafafa;
+        }
+        
+        .CodeMirror-fullscreen {
+            z-index: 999;
+        }
+        
+        .editor-preview-side {
+            border: 1px solid #e0e0e0;
+            border-left: none;
         }
         
         .loading {
@@ -177,7 +219,7 @@ const editorHTML = `<!DOCTYPE html>
     </div>
     
     <div class="editor-container">
-        <iframe id="md-editor-iframe" src="https://doocs.github.io/md/"></iframe>
+        <textarea id="markdown-editor"></textarea>
     </div>
     
     <div class="loading" id="loading">
@@ -191,22 +233,42 @@ const editorHTML = `<!DOCTYPE html>
         }
         
         let currentPostId = null;
-        let editorWindow = null;
+        let easyMDE = null;
         
         // 获取 URL 参数
         const urlParams = new URLSearchParams(window.location.search);
         const editId = urlParams.get('id');
         
-        // 等待 iframe 加载
-        const iframe = document.getElementById('md-editor-iframe');
-        iframe.onload = function() {
-            editorWindow = iframe.contentWindow;
-            
-            // 如果是编辑模式，加载文章
-            if (editId) {
-                loadPost(editId);
-            }
-        };
+        // 初始化 EasyMDE 编辑器
+        easyMDE = new EasyMDE({
+            element: document.getElementById('markdown-editor'),
+            autofocus: true,
+            autosave: {
+                enabled: true,
+                uniqueId: 'blog-editor-autosave',
+                delay: 10000,
+            },
+            spellChecker: false,
+            placeholder: '在这里使用 Markdown 编写文章内容...',
+            toolbar: [
+                'bold', 'italic', 'heading', '|',
+                'quote', 'unordered-list', 'ordered-list', '|',
+                'link', 'image', 'code', 'table', '|',
+                'preview', 'side-by-side', 'fullscreen', '|',
+                'guide'
+            ],
+            previewRender: function(plainText) {
+                return marked.parse(plainText);
+            },
+            renderingConfig: {
+                codeSyntaxHighlighting: true,
+            },
+        });
+        
+        // 如果是编辑模式，加载文章
+        if (editId) {
+            loadPost(editId);
+        }
         
         // 加载文章
         async function loadPost(id) {
@@ -220,61 +282,11 @@ const editorHTML = `<!DOCTYPE html>
                     document.getElementById('title').value = post.title;
                     document.getElementById('category').value = post.category || '';
                     document.getElementById('tags').value = (post.tags || []).join(', ');
-                    
-                    // 等待编辑器准备好，然后设置内容
-                    setTimeout(() => {
-                        setEditorContent(post.content);
-                    }, 1000);
+                    easyMDE.value(post.content);
                 }
             } catch (error) {
                 alert('加载文章失败');
             }
-        }
-        
-        // 设置编辑器内容
-        function setEditorContent(content) {
-            try {
-                // doocs/md 编辑器通过 postMessage 通信
-                editorWindow.postMessage({
-                    type: 'SET_CONTENT',
-                    content: content
-                }, '*');
-            } catch (error) {
-                console.error('设置编辑器内容失败:', error);
-            }
-        }
-        
-        // 获取编辑器内容
-        function getEditorContent() {
-            return new Promise((resolve) => {
-                // 监听来自编辑器的消息
-                const handler = (event) => {
-                    if (event.data && event.data.type === 'CONTENT') {
-                        window.removeEventListener('message', handler);
-                        resolve(event.data.content);
-                    }
-                };
-                
-                window.addEventListener('message', handler);
-                
-                // 请求内容
-                editorWindow.postMessage({
-                    type: 'GET_CONTENT'
-                }, '*');
-                
-                // 超时处理
-                setTimeout(() => {
-                    window.removeEventListener('message', handler);
-                    // 如果 postMessage 不工作，尝试直接从 localStorage 读取
-                    // doocs/md 会将内容保存在 localStorage 中
-                    try {
-                        const content = localStorage.getItem('__editor_content') || '';
-                        resolve(content);
-                    } catch (e) {
-                        resolve('');
-                    }
-                }, 1000);
-            });
         }
         
         // 保存草稿
@@ -294,24 +306,21 @@ const editorHTML = `<!DOCTYPE html>
             const category = document.getElementById('category').value.trim();
             const tagsInput = document.getElementById('tags').value.trim();
             const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()) : [];
+            const content = easyMDE.value().trim();
             
             if (!title) {
                 alert('请输入标题');
                 return;
             }
             
+            if (!content) {
+                alert('请输入内容');
+                return;
+            }
+            
             document.getElementById('loading').classList.add('show');
             
             try {
-                // 从编辑器获取内容
-                const content = await getEditorContent();
-                
-                if (!content || content.trim() === '') {
-                    alert('请输入内容');
-                    document.getElementById('loading').classList.remove('show');
-                    return;
-                }
-                
                 const url = currentPostId 
                     ? \`/api/posts/\${currentPostId}\`
                     : '/api/posts/create';
@@ -340,6 +349,8 @@ const editorHTML = `<!DOCTYPE html>
                     if (!currentPostId) {
                         currentPostId = data.data.id;
                     }
+                    // 清除自动保存
+                    easyMDE.clearAutosavedValue();
                     window.location.href = '/admin/dashboard';
                 } else {
                     alert('保存失败：' + data.error);
@@ -354,29 +365,18 @@ const editorHTML = `<!DOCTYPE html>
         // 返回
         function goBack() {
             if (confirm('确定要返回吗？未保存的内容将丢失。')) {
+                easyMDE.clearAutosavedValue();
                 window.location.href = '/admin/dashboard';
             }
         }
         
-        // 监听来自 doocs/md 的消息
-        window.addEventListener('message', (event) => {
-            // 可以在这里处理编辑器的各种事件
-            if (event.data && event.data.type === 'EDITOR_READY') {
-                console.log('编辑器已准备好');
+        // 快捷键保存
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                saveDraft();
             }
         });
-        
-        // 定期保存到 localStorage 作为备份
-        setInterval(async () => {
-            try {
-                const content = await getEditorContent();
-                if (content) {
-                    localStorage.setItem('__editor_content', content);
-                }
-            } catch (e) {
-                // 忽略错误
-            }
-        }, 30000); // 每30秒自动保存
     </script>
 </body>
 </html>`;
