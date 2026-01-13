@@ -1,7 +1,7 @@
 /**
  * 全局中间件 - 处理 CORS 和错误
  */
-export async function onRequest(context) {
+async function onRequest(context) {
   const { request, next, env } = context;
 
   // CORS 预检请求
@@ -43,3 +43,5 @@ export async function onRequest(context) {
     });
   }
 }
+
+export { onRequest };
