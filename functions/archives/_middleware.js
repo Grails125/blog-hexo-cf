@@ -107,7 +107,9 @@ function generateDynamicPostsHTML(posts) {
       html += `
         <div class="article-sort-item">
           <a class="article-sort-item-img" href="/posts/${post.id}" title="${post.title}">
-            <img src="/" alt="${post.title}">
+            <div style="width: 100%; height: 100%; background: #ffc848; display: flex; align-items: center; justify-content: center; font-size: 48px;">
+              📝
+            </div>
           </a>
           <div class="article-sort-item-info">
             <a class="article-sort-item-title" href="/posts/${post.id}" title="${post.title}" onclick="window.event.cancelBubble=true;">
@@ -123,27 +125,6 @@ function generateDynamicPostsHTML(posts) {
   });
 
   html += "</div>";
-
-  // 添加样式标记（用于区分动态文章）
-  html += `
-    <style>
-      .dynamic-posts-section {
-        position: relative;
-      }
-      .dynamic-posts-section::before {
-        content: "📝 动态文章";
-        display: block;
-        font-size: 14px;
-        color: #667eea;
-        font-weight: 600;
-        margin-bottom: 15px;
-        padding: 8px 12px;
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-        border-radius: 8px;
-        border-left: 4px solid #667eea;
-      }
-    </style>
-  `;
 
   return html;
 }
