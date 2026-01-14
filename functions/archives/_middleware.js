@@ -7,8 +7,8 @@ export async function onRequest(context) {
   const { request, env, next } = context;
   const url = new URL(request.url);
 
-  // 只处理 /archives/ 页面
-  if (!url.pathname.startsWith("/archives")) {
+  // 只处理 /archives/ 主页面
+  if (url.pathname !== "/archives" && url.pathname !== "/archives/") {
     return next();
   }
 
@@ -36,25 +36,26 @@ export async function onRequest(context) {
     // 读取原始 HTML
     let html = await response.text();
 
-    // 生成动态文章的 HTML
+    // 生成动态文章的 HTML（完全匹配 Solitude 主题样式）
     const dynamicPostsHTML = generateDynamicPostsHTML(publishedPosts);
 
-    // 注入到页面中（在文章列表容器之后）
-    // Solitude 主题使用特定的类名，我们需要找到合适的插入点
-    const insertPoint = html.indexOf('<div class="article-sort">');
+    // 找到文章列表容器并在其前面插入动态文章
+    // Solitude 主题的文章列表在 <div class="article-sort"> 中
+    const insertMarker = '<div class="article-sort">';
+    const insertIndex = html.indexOf(insertMarker);
 
-    if (insertPoint !== -1) {
-      // 在文章列表开始处插入
-      const beforeInsert = html.substring(0, insertPoint);
-      const afterInsert = html.substring(insertPoint);
+    if (insertIndex !== -1) {
+      const before = html.substring(0, insertIndex);
+      const after = html.substring(insertIndex);
 
-      html =
-        beforeInsert +
-        '<div class="dynamic-posts-section">' +
-        '<h2 class="dynamic-posts-title">📝 动态文章</h2>' +
-        dynamicPostsHTML +
-        "</div>" +
-        afterInsert;
+      html = before + dynamicPostsHTML + after;
+
+      // 更新文章总数
+      const totalCount = publishedPosts.length + 2; // 2 是 Hexo 生成的文章数
+      html = html.replace(
+        /<div class="article-sort-title">文章<sup>\d+<\/sup><\/div>/,
+        `<div class="article-sort-title">文章<sup>${totalCount}</sup></div>`
+      );
     }
 
     return new Response(html, {
@@ -67,44 +68,82 @@ export async function onRequest(context) {
 }
 
 function generateDynamicPostsHTML(posts) {
-  return `
-    <div class="article-sort">
-      ${posts
-        .map((post) => {
-          const date = new Date(post.createdAt);
-          const year = date.getFullYear();
-          const month = String(date.getMonth() + 1).padStart(2, "0");
-          const day = String(date.getDate()).padStart(2, "0");
+  // 按年份分组
+  const postsByYear = {};
+  posts.forEach((post) => {
+    const year = new Date(post.createdAt).getFullYear();
+    if (!postsByYear[year]) {
+      postsByYear[year] = [];
+    }
+    postsByYear[year].push(post);
+  });
 
-          return `
-          <div class="article-sort-item">
-            <div class="article-sort-item-time">
-              <time datetime="${post.createdAt}" title="${post.createdAt}">
-                ${month}-${day}
-              </time>
-            </div>
-            <div class="article-sort-item-title">
-              <a href="/posts/${post.id}" title="${post.title}">
-                ${post.title}
-              </a>
+  // 生成 HTML，完全匹配 Solitude 主题结构
+  let html = '<div class="article-sort dynamic-posts-section">';
+
+  // 按年份倒序
+  const years = Object.keys(postsByYear).sort((a, b) => b - a);
+
+  years.forEach((year) => {
+    html += `<div class="article-sort-item year">${year}</div>`;
+
+    postsByYear[year].forEach((post) => {
+      const date = new Date(post.createdAt);
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+
+      // 生成标签 HTML
+      const tagsHTML = (post.tags || [])
+        .map((tag) => {
+          const encodedTag = encodeURIComponent(tag);
+          return `<a class="article-meta__tags" href="/tags/${encodedTag}/" onclick="window.event.cancelBubble=true;">
+          <span class="tags-punctuation">
+            <i class="solitude fas fa-hashtag"></i>${tag}
+          </span>
+        </a>`;
+        })
+        .join("");
+
+      html += `
+        <div class="article-sort-item">
+          <a class="article-sort-item-img" href="/posts/${post.id}" title="${post.title}">
+            <img src="/" alt="${post.title}">
+          </a>
+          <div class="article-sort-item-info">
+            <a class="article-sort-item-title" href="/posts/${post.id}" title="${post.title}" onclick="window.event.cancelBubble=true;">
+              ${post.title}
+            </a>
+            <div class="article-sort-item-tags">
+              ${tagsHTML}
             </div>
           </div>
-        `;
-        })
-        .join("")}
-    </div>
+        </div>
+      `;
+    });
+  });
+
+  html += "</div>";
+
+  // 添加样式标记（用于区分动态文章）
+  html += `
     <style>
       .dynamic-posts-section {
-        margin-bottom: 40px;
-        padding-bottom: 30px;
-        border-bottom: 2px dashed #e0e0e0;
+        position: relative;
       }
-      .dynamic-posts-title {
-        font-size: 24px;
-        font-weight: 600;
-        margin-bottom: 20px;
+      .dynamic-posts-section::before {
+        content: "📝 动态文章";
+        display: block;
+        font-size: 14px;
         color: #667eea;
+        font-weight: 600;
+        margin-bottom: 15px;
+        padding: 8px 12px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
       }
     </style>
   `;
+
+  return html;
 }
