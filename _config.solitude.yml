@@ -67,7 +67,7 @@ nav:
 # Home Top Banner
 # 首页顶部
 hometop:
-  enable: false
+  enable: true
   banner:
     title: 分享技术<br >与科技生活 # 大字
     desc:
@@ -159,7 +159,7 @@ aside:
   # 文章目录
   toc:
     post: true
-    page: false
+    page: true
     vague: true
   # --------------------------- end ---------------------------
 
@@ -167,7 +167,7 @@ aside:
   # Tags
   # 标签
   tags:
-    enable: false
+    enable: true
     limit: 20 # Number of tags displayed
     # Highlighted tags
     highlight_list:
@@ -183,7 +183,7 @@ aside:
     postcount: true
     # Total number of words
     # 总字数
-    wordcount: false
+    wordcount: true
     # PV
     pv: true
     # UV
@@ -196,7 +196,7 @@ aside:
     runtimeenable: true
     # Format: yyyy-MM-dd hh-mm-ss
     # 格式: yyyy-MM-dd hh-mm-ss
-    runtime: "2023-04-20 00:00:00"
+    runtime: "2026-01-13 17:30:25"
   # --------------------------- end ---------------------------
 # --------------------------- end ---------------------------
 
@@ -251,25 +251,25 @@ post:
   # Article Local AI
   # 文章本地AI
   ai:
-    enable: false
+    enable: true
     modelName: 小七 GPT
   # Article meta information
   # 文章元信息
   meta:
     # Release date
     # 发布日期
-    date: false
+    date: true
     # Update date
     # 更新日期
-    updated: false
+    updated: true
     # Location
     # 位置
     locate: false
     # Number of words
     # 字数
-    wordcount: false
+    wordcount: true
     # uv
-    readtime: false
+    readtime: true
     # pv
     pv: false
     # Comment count
@@ -310,7 +310,7 @@ post:
   # Article reading progress
   # 文章封面取色
   covercolor:
-    enable: false
+    enable: true
     # local: local color / api: api color / ave: oss average color
     mode: local
     # api address / api 地址
@@ -342,7 +342,7 @@ display_mode:
   type: auto
   # After opening, the dark mode will display the starry sky background
   # 开启后深色模式会显示星空背景
-  universe: false
+  universe: true
 # --------------------------- end ---------------------------
 
 # --------------------------- start ---------------------------
@@ -364,7 +364,7 @@ font:
 # When the user exits the page, modify the title
 # 当用户退出页面时，修改标题
 lure:
-  enable: false
+  enable: true
   jump: 404 Not Found
   back: ヾ(≧∇≦*)ゝHey, hey, you fell for it.
 # --------------------------- end ---------------------------
@@ -439,11 +439,11 @@ right_menu:
 #  information
 # 复制信息
 copy:
-  enable: false
+  enable: true
   # Turn on Link copyright information after copying.
   # 复制后链接版权信息
   copyright:
-    enable: false
+    enable: true
     # Display when the number of words copied exceeds
     # 复制文字时超过多少字数显示
     limit: 50
@@ -580,7 +580,7 @@ meting_api: "https://meting.qjqq.cn/?server=:server&type=:type&id=:id&auth=:auth
 # Capsule music
 # 音乐胶囊
 capsule:
-  enable: false
+  enable: true
   # 歌单 ID / 单曲 ID
   id: 5144842535
   # 服务商：netease / qq / xiami / kugou / baidu
@@ -616,7 +616,7 @@ keyboard:
 # Lazyload
 # 懒加载
 lazyload:
-  enable: false
+  enable: true
   field: site
   placeholder: ""
   errorimg: /img/error_load.avif
@@ -673,11 +673,11 @@ mediumZoom: false # mediumZoom
 # Turn the entire site gray on memorable days.
 # 在纪念日整个网站变灰
 memorial:
-  enable: false
+  enable: true
   date:
-  #  - 7-7
-  #  - 9-18
-  #  - 12-13
+    - 7-7
+    - 9-18
+    - 12-13
 # --------------------------- end ---------------------------
 
 # --------------------------- start ---------------------------
@@ -727,7 +727,7 @@ verify_site:
 # --------------------------- end ---------------------------
 
 # --------------------------- start ---------------------------
-# Legacy CSS Prefix 
+# Legacy CSS Prefix
 # CSS前缀配置
 css_prefix: true
 # --------------------------- end ---------------------------
@@ -957,11 +957,11 @@ CDN:
   internal: local # local / cdnjs / jsdelivr / unpkg / custom
   third_party: custom # cdnjs / jsdelivr / unpkg / custom
   version: true # 是否使用版本号
-  
+
   # Custom format for CDN URLs
   # CDN URL 自定义格式
   custom_format: https://cdn.jsdelivr.net/npm/${name}@${version}/${min_file}
-  
+
   # 直接覆盖默认 CDN 链接（优先级最高）
   options:
     # algolia_search:
