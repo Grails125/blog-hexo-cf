@@ -112,21 +112,36 @@ const adminHTML = `<!DOCTYPE html>
           </a>
 
           <!-- Post Card -->
-          <div v-for="post in posts" :key="post.id" class="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow flex flex-col overflow-hidden group">
+          <div
+            v-for="post in posts"
+            :key="post.id"
+            class="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow flex flex-col overflow-hidden group"
+          >
+            <!-- 封面图片 -->
+            <div v-if="post.cover" class="w-full h-40 overflow-hidden bg-slate-100">
+              <img :src="post.cover" :alt="post.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            </div>
+            
             <div class="p-5 flex-1 cursor-pointer" @click="editPost(post.id)">
               <div class="flex items-start justify-between mb-2">
-                <div class="h-10 w-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg">
+                <div class="h-10 w-10 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-lg flex-shrink-0">
                   📝
                 </div>
-                <span v-if="post.category" class="text-xs px-2 py-1 bg-slate-100 text-slate-500 rounded-full">
+                <!-- 分类标签 -->
+                <span
+                  v-if="post.category"
+                  class="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full font-medium"
+                >
                   {{ post.category }}
                 </span>
               </div>
-              <h3 class="font-semibold text-slate-800 line-clamp-2 group-hover:text-blue-600 transition-colors mb-2">
+              
+              <h3 class="font-semibold text-slate-800 line-clamp-2 group-hover:text-blue-600 transition-colors mb-3">
                 {{ post.title }}
               </h3>
 
               <div class="space-y-2">
+                <!-- 发布时间 -->
                 <p class="text-xs text-slate-400 font-mono flex items-center gap-1">
                   <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -136,15 +151,35 @@ const adminHTML = `<!DOCTYPE html>
                   </svg>
                   {{ formatDate(post.createdAt) }}
                 </p>
+                
+                <!-- 标签 -->
+                <div v-if="post.tags && post.tags.length" class="flex flex-wrap gap-1">
+                  <span
+                    v-for="tag in post.tags.slice(0, 3)"
+                    :key="tag"
+                    class="text-xs px-2 py-0.5 bg-blue-50 text-blue-600 rounded"
+                  >
+                    #{{ tag }}
+                  </span>
+                  <span v-if="post.tags.length > 3" class="text-xs text-slate-400">
+                    +{{ post.tags.length - 3 }}
+                  </span>
+                </div>
+                
+                <!-- 状态 -->
                 <div class="flex items-center gap-2">
-                  <span :class="\`text-xs px-2 py-0.5 rounded-full \${post.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}\`">
+                  <span :class="`text-xs px-2 py-0.5 rounded-full ${post.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`">
                     {{ post.status === 'published' ? '已发布' : '草稿' }}
                   </span>
                 </div>
               </div>
             </div>
+            
             <div class="p-3 border-t border-slate-100 flex gap-2">
-              <button @click.stop="deletePost(post.id, post.title)" class="flex-1 text-xs text-red-600 hover:bg-red-50 py-2 rounded transition-colors">
+              <button
+                @click.stop="deletePost(post.id, post.title)"
+                class="flex-1 text-xs text-red-600 hover:bg-red-50 py-2 rounded transition-colors"
+              >
                 删除
               </button>
             </div>

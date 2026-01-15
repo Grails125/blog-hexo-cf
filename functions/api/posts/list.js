@@ -1,5 +1,5 @@
 /**
- * 文章列表 API - 从 R2 读取
+ * 文章列表 API - 从 R2 读取并解析 Front Matter
  * GET /api/posts/list
  */
 
@@ -26,17 +26,32 @@ export async function onRequestGet(context) {
         continue;
       }
 
-      // 从 customMetadata 获取信息
-      const obj = await env.BLOG_R2.head(item.key);
-      const metadata = obj.customMetadata || {};
+      try {
+        // 读取文件内容以解析 Front Matter
+        const obj = await env.BLOG_R2.get(item.key);
+        if (!obj) continue;
 
-      posts.push({
-        filename: item.key,
-        title: metadata.title || "Untitled",
-        status: metadata.status || "published",
-        createdAt: metadata.createdAt || item.uploaded.toISOString(),
-        size: item.size,
-      });
+        const content = await obj.text();
+        const metadata = parseFrontMatter(content);
+
+        // 从文件名提取 ID (去掉 posts/ 前缀和 .md 后缀)
+        const id = item.key.replace("posts/", "").replace(".md", "");
+
+        posts.push({
+          id,
+          filename: item.key,
+          title: metadata.title || "Untitled",
+          category: metadata.category || metadata.categories?.[0] || "",
+          tags: metadata.tags || [],
+          cover: metadata.cover || "",
+          status: metadata.status || "published",
+          createdAt: metadata.date || item.uploaded.toISOString(),
+          size: item.size,
+        });
+      } catch (err) {
+        console.error(`Error parsing ${item.key}:`, err);
+        continue;
+      }
     }
 
     // 按创建时间倒序排序
@@ -61,4 +76,73 @@ export async function onRequestGet(context) {
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
+}
+
+/**
+ * 解析 Markdown Front Matter
+ */
+function parseFrontMatter(content) {
+  const frontMatterRegex = /^---\s*\n([\s\S]*?)\n---/;
+  const match = content.match(frontMatterRegex);
+
+  if (!match) {
+    return {};
+  }
+
+  const frontMatter = match[1];
+  const metadata = {};
+
+  // 解析 YAML 格式的 Front Matter
+  const lines = frontMatter.split("\n");
+  let currentKey = null;
+  let arrayValues = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    // 数组项 (以 - 开头)
+    if (trimmed.startsWith("-")) {
+      const value = trimmed.substring(1).trim();
+      arrayValues.push(value);
+      continue;
+    }
+
+    // 如果之前在收集数组,保存它
+    if (currentKey && arrayValues.length > 0) {
+      metadata[currentKey] = arrayValues;
+      arrayValues = [];
+      currentKey = null;
+    }
+
+    // 键值对
+    const colonIndex = trimmed.indexOf(":");
+    if (colonIndex > 0) {
+      const key = trimmed.substring(0, colonIndex).trim();
+      let value = trimmed.substring(colonIndex + 1).trim();
+
+      // 处理数组格式 [item1, item2]
+      if (value.startsWith("[") && value.endsWith("]")) {
+        value = value
+          .substring(1, value.length - 1)
+          .split(",")
+          .map((v) => v.trim())
+          .filter(Boolean);
+        metadata[key] = value;
+      } else if (value) {
+        // 普通值
+        metadata[key] = value;
+      } else {
+        // 可能是数组的开始
+        currentKey = key;
+      }
+    }
+  }
+
+  // 保存最后的数组
+  if (currentKey && arrayValues.length > 0) {
+    metadata[currentKey] = arrayValues;
+  }
+
+  return metadata;
 }

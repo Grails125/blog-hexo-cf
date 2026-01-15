@@ -48,32 +48,49 @@ export async function onRequestPost(context) {
     const random = Math.random().toString(36).substring(2, 9);
     const filename = `${timestamp}-${random}.${ext}`;
 
-    // 上传到 R2 (如果有 R2 绑定) 或 KV
+    // 上传到 R2 的 images 目录
+    const r2Key = `images/${filename}`;
+
     if (env.BLOG_R2) {
       // 使用 R2 存储
-      await env.BLOG_R2.put(filename, image.stream(), {
+      await env.BLOG_R2.put(r2Key, image.stream(), {
         httpMetadata: {
           contentType: image.type,
         },
       });
+
+      // 返回可访问的 URL
+      // 假设您配置了 R2 公开访问或自定义域名
+      const imageUrl = `/r2/images/${filename}`;
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          url: imageUrl,
+        }),
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     } else {
       // 降级到 KV 存储 (不推荐用于大文件)
       const arrayBuffer = await image.arrayBuffer();
       await env.BLOG_KV.put(`image:${filename}`, arrayBuffer, {
         metadata: { contentType: image.type },
       });
-    }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        url: `/img/${filename}`,
-      }),
-      {
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+      return new Response(
+        JSON.stringify({
+          success: true,
+          url: `/img/${filename}`,
+        }),
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
   } catch (error) {
+    console.error("Upload error:", error);
     return new Response(
       JSON.stringify({
         success: false,
