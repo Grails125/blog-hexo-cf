@@ -291,8 +291,7 @@ const editorHTML = `<!DOCTYPE html>
               
               categorySelect.value = post.category;
             }
-            document.getElementById("cover").value = post.cover || "";
-            easyMDE.value(post.content);
+
           }
         } catch (e) {
           alert("加载文章失败: " + e.message);
