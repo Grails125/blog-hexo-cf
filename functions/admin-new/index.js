@@ -43,6 +43,17 @@ const adminHTML = `<!DOCTYPE html>
               撰写新文章
             </a>
             <button
+              @click="triggerRebuild"
+              :disabled="rebuilding"
+              class="w-full bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 mb-3 shadow-sm"
+            >
+              <svg v-if="!rebuilding" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+              </svg>
+              <span v-if="rebuilding">构建中...</span>
+              <span v-else>🔄 重新构建</span>
+            </button>
+            <button
               @click="logout"
               class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
             >
@@ -126,8 +137,44 @@ const adminHTML = `<!DOCTYPE html>
           const posts = ref([]);
           const message = ref("");
           const messageType = ref("success");
+          const rebuilding = ref(false);
 
           const getToken = () => localStorage.getItem("admin_token");
+
+          const triggerRebuild = async () => {
+            if (rebuilding.value) return;
+            
+            if (!confirm('确定要触发重新构建吗?\\n\\n构建过程约需 2-5 分钟,构建完成后新发布的文章将显示在网站上。')) {
+              return;
+            }
+
+            rebuilding.value = true;
+            message.value = "正在触发构建...";
+            messageType.value = "success";
+
+            try {
+              const res = await fetch("/api/rebuild", {
+                method: "POST",
+                headers: {
+                  Authorization: \`Bearer \${getToken()}\`,
+                },
+              });
+              const data = await res.json();
+              
+              if (data.success) {
+                message.value = "构建已触发!预计 2-5 分钟后生效";
+                messageType.value = "success";
+              } else {
+                message.value = "触发失败: " + (data.error || "未知错误");
+                messageType.value = "error";
+              }
+            } catch (e) {
+              message.value = "触发失败: " + e.message;
+              messageType.value = "error";
+            } finally {
+              rebuilding.value = false;
+            }
+          };
 
           const fetchPosts = async () => {
             try {
@@ -202,6 +249,8 @@ const adminHTML = `<!DOCTYPE html>
             posts,
             message,
             messageType,
+            rebuilding,
+            triggerRebuild,
             editPost,
             deletePost,
             logout,
