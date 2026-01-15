@@ -168,7 +168,7 @@ const adminHTML = `<!DOCTYPE html>
                 
                 <!-- 状态 -->
                 <div class="flex items-center gap-2">
-                  <span :class="`text-xs px-2 py-0.5 rounded-full ${post.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`">
+                  <span :class="\`text-xs px-2 py-0.5 rounded-full \${post.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}\`">
                     {{ post.status === 'published' ? '已发布' : '草稿' }}
                   </span>
                 </div>
