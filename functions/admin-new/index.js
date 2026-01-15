@@ -279,50 +279,7 @@ const adminHTML = `<!DOCTYPE html>
             window.location.href = \`/admin-new/editor?id=\${id}\`;
           };
 
-                    const deletePost = async (id, title) => {
-            if (!confirm(`确定要删除文章《${title}》吗?此操作不可恢复!`)) {
-              return;
-            }
-
-            try {
-              const res = await fetch(`/api/posts/${id}`, {
-                method: "DELETE",
-                headers: {
-                  Authorization: `Bearer ${getToken()}`,
-                },
-              });
-              const data = await res.json();
-              if (data.success) {
-                message.value = "删除成功!正在触发重新构建...";
-                messageType.value = "success";
-                fetchPosts();
-                
-                // 自动触发重新构建
-                try {
-                  const rebuildRes = await fetch("/api/rebuild", {
-                    method: "POST",
-                    headers: {
-                      Authorization: `Bearer ${getToken()}`,
-                    },
-                  });
-                  const rebuildData = await rebuildRes.json();
-                  if (rebuildData.success) {
-                    message.value = "删除成功!网站正在重新构建，约 2-3 分钟后生效。";
-                  } else {
-                    message.value = "删除成功，但触发构建失败，请手动点击「重新构建」按钮。";
-                  }
-                } catch (e) {
-                  message.value = "删除成功，但触发构建失败: " + e.message;
-                }
-              } else {
-                message.value = "删除失败: " + data.error;
-                messageType.value = "error";
-              }
-            } catch (e) {
-              message.value = "删除失败: " + e.message;
-              messageType.value = "error";
-            }
-          
+          const deletePost = async (id, title) => {
             if (!confirm(\`确定要删除文章《\${title}》吗?此操作不可恢复!\`)) {
               return;
             }
@@ -335,10 +292,27 @@ const adminHTML = `<!DOCTYPE html>
                 },
               });
               const data = await res.json();
-              if (data.success) {
-                message.value = "删除成功!请点击「重新构建」按钮更新网站。";
+                            if (data.success) {
+                message.value = "删除成功!正在触发重新构建...";
                 messageType.value = "success";
                 fetchPosts();
+                
+                // 自动触发重新构建
+                fetch("/api/rebuild", {
+                  method: "POST",
+                  headers: { Authorization: `Bearer ${getToken()}` },
+                })
+                  .then(res => res.json())
+                  .then(rebuildData => {
+                    if (rebuildData.success) {
+                      message.value = "删除成功!网站正在重新构建，约 2-3 分钟后生效。";
+                    } else {
+                      message.value = "删除成功，但触发构建失败，请手动点击「重新构建」按钮。";
+                    }
+                  })
+                  .catch(() => {
+                    message.value = "删除成功，但触发构建失败，请手动点击「重新构建」按钮。";
+                  });
               } else {
                 message.value = "删除失败: " + data.error;
                 messageType.value = "error";
