@@ -180,7 +180,7 @@ export async function onRequestDelete(context) {
     await env.BLOG_R2.delete(filename);
 
     console.log("[DELETE Post] File deleted successfully");
-    const filename = `posts/${id}.md`;
+
     await env.BLOG_R2.delete(filename);
 
     return new Response(
