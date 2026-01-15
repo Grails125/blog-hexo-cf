@@ -322,7 +322,7 @@ const adminHTML = `<!DOCTYPE html>
               message.value = "删除失败: " + e.message;
               messageType.value = "error";
             }
-          }; {
+          
             if (!confirm(\`确定要删除文章《\${title}》吗?此操作不可恢复!\`)) {
               return;
             }
