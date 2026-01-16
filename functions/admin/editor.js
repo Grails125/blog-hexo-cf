@@ -378,24 +378,7 @@ const editorHTML = `<!DOCTYPE html>
 
           const data = await res.json();
           if (data.success) {
-            const successMsg = publish ? "发布成功!" : "保存成功!";
-            alert(successMsg + "\n\n正在触发重新构建...");
-            // 自动触发重新构建
-            fetch("/api/rebuild", {
-              method: "POST",
-              headers: { Authorization: \`Bearer \${getToken()}\` },
-            })
-              .then(res => res.json())
-              .then(rebuildData => {
-                if (rebuildData.success) {
-                  console.log("重新构建成功");
-                } else {
-                  console.warn("触发构建失败");
-                }
-              })
-              .catch(() => {
-                console.error("触发构建请求失败");
-              });
+           alert(publish ? "发布成功!" : "保存成功!");
             if (!postId) {
               document.getElementById("postId").value = data.data.id;
               window.history.replaceState(null, null, "?id=" + data.data.id);
