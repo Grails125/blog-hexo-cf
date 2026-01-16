@@ -16,6 +16,7 @@ node_modules/
 public/
 .deploy*/
 db.json
+source/
 
 # 配置文件
 _multiconfig.yml
