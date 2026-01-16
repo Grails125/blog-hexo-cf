@@ -118,3 +118,16 @@ feed:
   content: true
   content_limit: 140
   content_limit_delim: " "
+
+# 性能优化配置
+# HTML/CSS/JS 压缩 (需要安装 hexo-all-minifier)
+minify:
+  html:
+    enable: true
+    exclude: []
+  css:
+    enable: true
+    exclude: []
+  js:
+    enable: true
+    exclude: []
