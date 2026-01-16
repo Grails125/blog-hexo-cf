@@ -1,140 +1,189 @@
-# 博客部署到 Cloudflare Pages
+<p align="center">
+    <h1 align="center">Hexo Blog on Cloudflare</h1>
+    <p align="center">基于 Cloudflare Pages 的现代化 Hexo 博客系统 🚀</p> 
+    <p align="center">
+        <a href="https://github.com/Grails125/blog-hexo-kv/blob/main/LICENSE" target="_blank">
+            <img src="https://img.shields.io/badge/license-MIT-green" alt="license" />
+        </a>    
+        <a href="https://github.com/Grails125/blog-hexo-kv/releases" target="_blank">
+            <img src="https://img.shields.io/github/v/release/Grails125/blog-hexo-kv" alt="releases" />
+        </a>  
+        <a href="https://github.com/Grails125/blog-hexo-kv/issues">
+            <img src="https://img.shields.io/github/issues/Grails125/blog-hexo-kv" alt="issues" />
+        </a>  
+        <a href="https://github.com/Grails125/blog-hexo-kv/stargazers" target="_blank">
+            <img src="https://img.shields.io/github/stars/Grails125/blog-hexo-kv" alt="stargazers" />
+        </a>  
+        <a href="https://github.com/Grails125/blog-hexo-kv/forks" target="_blank">
+            <img src="https://img.shields.io/github/forks/Grails125/blog-hexo-kv" alt="forks" />
+        </a>
+    </p>
+</p>
 
-本项目使用 Hexo 生成静态博客,并通过 Cloudflare Pages 部署。
+## 📖 项目简介
 
-## 本地开发
+只需要一个域名，即可搭建功能完备的现代化博客系统。本项目基于 Hexo 静态博客生成器，部署到 Cloudflare Pages，集成 R2 对象存储和 KV 数据库，实现零成本或低成本运营。
 
-### 环境配置
+## ✨ 功能特性
 
-首先复制环境变量示例文件并配置:
+- **💰 低成本运营**：部署到 Cloudflare Pages，每月 100,000 次免费请求，适合个人博客
+
+- **📝 在线编辑**：内置管理后台，支持 Markdown 实时编辑，无需本地环境
+
+- **🎨 现代主题**：采用 Solitude 主题，响应式设计，支持暗色模式
+
+- **☁️ 云端存储**：使用 R2 对象存储保存文章和图片，自动同步
+
+- **🔐 安全认证**：JWT 身份验证，环境变量管理敏感信息
+
+- **⚡ 性能优化**：代码压缩、图片懒加载，优化加载速度
+
+- **🛠️ 开发体验**：ESLint + Prettier 代码规范，nodemon 热重载
+
+- **📦 一键部署**：简化部署流程，一条命令发布到生产环境
+
+## 🚀 快速开始
+
+### 环境要求
+
+- Node.js 18 或更高版本
+- npm 或 yarn
+- Cloudflare 账户
+
+### 本地开发
 
 ```bash
-# 复制环境变量模板
-cp .env.example .env
+# 1. 克隆项目
+git clone https://github.com/Grails125/blog-hexo-kv.git
+cd blog-hexo-kv
 
-# 编辑 .env 文件,填入真实的配置
-# - R2 存储配置(用于从R2下载文章)
-# - 管理员密码哈希
-# - JWT密钥
-# - 其他配置
-```
-
-### 本地命令
-
-```bash
-# 安装依赖
+# 2. 安装依赖
 npm install
 
-# 启动本地服务器
-npm run server
+# 3. 配置环境变量
+cp .env.example .env
+# 编辑 .env 填入配置
 
-# 启动开发服务器(预览草稿)
+# 4. 启动开发服务器
 npm run dev
-
-# 启动管理后台(开发模式,自动重启)
-npm run admin:dev
-
-# 生成静态文件
-npm run build
-
-# 清理缓存
-npm run clean
-
-# 代码检查
-npm run lint
-
-# 代码格式化
-npm run format
 ```
 
-## Cloudflare 部署
+访问 http://localhost:4000 预览博客
 
 ### 一键部署
 
 ```bash
-# 1. 首先登录 Cloudflare (首次使用)
+# 1. 登录 Cloudflare (首次使用)
 npx wrangler login
 
-# 2. 配置环境变量
-# 复制 .env.example 为 .env 并填入真实值
-cp .env.example .env
-
-# 3. 一键构建并部署
+# 2. 一键部署到生产环境
 npm run deploy:cf
 ```
 
-### 手动部署步骤
+## 📚 文档
 
-### 1. 创建 KV 命名空间
+- **[架构说明](docs/ARCHITECTURE.md)** - 技术栈、目录结构、数据流程
+- **[开发指南](docs/DEVELOPMENT.md)** - 快速开始、常用命令、开发规范
+- **[部署指南](DEPLOY.md)** - 环境变量配置、部署步骤
+- **[变更日志](CHANGELOG.md)** - 版本历史与更新记录
 
-在 Cloudflare Dashboard 中:
+## 🔧 技术栈
 
-1. 进入 **Workers & Pages** > **KV**
-2. 点击 **Create namespace**
-3. 命名为 `BLOG_KV`
-4. 复制命名空间 ID
+### 核心框架
 
-### 2. 配置 wrangler.toml
+- **[Hexo](https://hexo.io/)** - 静态博客生成器
+- **[Solitude](https://docs.solitude.js.org/)** - 现代化博客主题
+- **[Vue 3](https://vuejs.org/)** - 管理后台前端框架
 
-将 `wrangler.toml` 中的 `your-kv-namespace-id` 替换为实际的 KV 命名空间 ID。
+### 平台服务
 
-### 3. 部署到 Cloudflare Pages
+- **[Cloudflare Pages](https://pages.cloudflare.com/)** - 静态网站托管
+- **[Cloudflare Functions](https://developers.cloudflare.com/pages/functions/)** - 无服务器API
+- **[Cloudflare KV](https://developers.cloudflare.com/kv/)** - 键值存储
+- **[Cloudflare R2](https://developers.cloudflare.com/r2/)** - 对象存储 (S3 兼容)
 
-#### 方式一: 通过 GitHub 自动部署
+### 开发工具
 
-1. 将代码推送到 GitHub 仓库
-2. 在 Cloudflare Dashboard 中创建 Pages 项目
-3. 连接 GitHub 仓库
-4. 配置构建设置:
-   - **构建命令**: `npm run build`
-   - **输出目录**: `public`
-5. 添加环境变量:
-   - `NODE_VERSION`: `22`
-6. 绑定 KV 命名空间:
-   - 变量名: `BLOG_KV`
-   - KV 命名空间: 选择之前创建的 `BLOG_KV`
+- **[Express](https://expressjs.com/)** - 本地开发服务器
+- **[ESLint](https://eslint.org/)** - 代码检查
+- **[Prettier](https://prettier.io/)** - 代码格式化
+- **[nodemon](https://nodemon.io/)** - 自动重启
 
-#### 方式二: 使用 Wrangler CLI
+## 📂 目录结构
 
-```bash
-# 安装 Wrangler
-npm install -g wrangler
-
-# 登录 Cloudflare
-wrangler login
-
-# 部署 Functions
-wrangler deploy
-
-# 部署 Pages
-npm run build
-wrangler pages deploy public
+```
+blog-hexo-kv/
+├── source/                 # 博客源文件
+│   ├── _posts/            # 文章 Markdown
+│   └── img/               # 图片资源
+├── functions/              # Cloudflare Functions
+│   ├── admin/             # 管理后台
+│   │   ├── index.js       # 文章列表
+│   │   └── editor.js      # 编辑器页面
+│   └── api/               # RESTful API
+│       ├── auth/          # 认证接口
+│       ├── posts/         # 文章管理
+│       └── rebuild/       # 触发构建
+├── admin/                  # 本地管理后台
+│   └── server.js          # Express 服务器
+├── scripts/                # 构建脚本
+│   ├── download-r2-posts.js  # R2 同步
+│   └── deploy.js          # 部署脚本
+├── docs/                   # 项目文档
+│   ├── ARCHITECTURE.md    # 架构说明
+│   └── DEVELOPMENT.md     # 开发指南
+├── .env.example           # 环境变量模板
+├── package.json           # 项目配置
+└── _config.yml            # Hexo 配置
 ```
 
-### 4. 更新配置
+## 🎯 常用命令
 
-部署完成后,更新以下配置:
+```bash
+# 开发
+npm run dev              # 开发服务器(含草稿)
+npm run admin:dev        # 管理后台(热重载)
 
-1. `_config.yml` 中的 `url` 为你的 Cloudflare Pages 域名
-2. `wrangler.toml` 中的 `ALLOWED_ORIGINS` 为你的域名
+# 构建
+npm run build            # 完整构建
+npm run clean            # 清理缓存
 
-## API 端点
+# 内容管理
+npm run new              # 新建文章
+npm run publish          # 发布草稿
 
-部署后,以下 API 将可用:
+# 代码质量
+npm run lint             # ESLint 检查
+npm run format           # Prettier 格式化
 
-- `GET /api/comments/:postId` - 获取文章评论
-- `POST /api/comments/:postId` - 提交评论
-- `GET /api/stats/:postId` - 获取访问统计
-- `POST /api/stats/:postId` - 增加访问量
-- `GET /api/likes/:postId` - 获取点赞数
-- `POST /api/likes/:postId` - 点赞
+# 部署
+npm run deploy:cf        # 一键部署到 Cloudflare
+```
 
-## 自定义域名
+## 🔑 环境变量
 
-在 Cloudflare Pages 设置中可以添加自定义域名。
+参考 `.env.example` 配置以下环境变量：
 
-## 注意事项
+| 变量名                 | 说明                     |
+| ---------------------- | ------------------------ |
+| `R2_ACCOUNT_ID`        | Cloudflare 账户 ID       |
+| `R2_ACCESS_KEY_ID`     | R2 访问密钥 ID           |
+| `R2_SECRET_ACCESS_KEY` | R2 密钥                  |
+| `ADMIN_PASSWORD_HASH`  | 管理员密码哈希           |
+| `PORT`                 | 本地服务器端口(默认3000) |
 
-- KV 免费版有读写限制(每天 100,000 次读取,1,000 次写入)
-- 建议为评论添加反垃圾机制
-- 可以考虑添加评论审核功能
+## 📝 许可证
+
+本项目采用 [MIT](LICENSE) 许可证
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+## ⭐ Star History
+
+如果这个项目对你有帮助，请给个 Star ⭐
+
+## 📧 联系方式
+
+- GitHub Issues: [提交问题](https://github.com/Grails125/blog-hexo-kv/issues)
