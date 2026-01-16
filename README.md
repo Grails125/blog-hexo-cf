@@ -84,8 +84,8 @@ npm run deploy:cf
 
 - **[架构说明](docs/ARCHITECTURE.md)** - 技术栈、目录结构、数据流程
 - **[开发指南](docs/DEVELOPMENT.md)** - 快速开始、常用命令、开发规范
-- **[部署指南](DEPLOY.md)** - 环境变量配置、部署步骤
-- **[变更日志](CHANGELOG.md)** - 版本历史与更新记录
+- **[部署指南](docs/DEPLOY.md)** - 环境变量配置、部署步骤
+- **[变更日志](docs/CHANGELOG.md)** - 版本历史与更新记录
 
 ## 🔧 技术栈
 
@@ -171,6 +171,47 @@ npm run deploy:cf        # 一键部署到 Cloudflare
 | `R2_SECRET_ACCESS_KEY` | R2 密钥                  |
 | `ADMIN_PASSWORD_HASH`  | 管理员密码哈希           |
 | `PORT`                 | 本地服务器端口(默认3000) |
+
+## ⚙️ 配置文件
+
+### 主要配置
+
+| 文件                   | 说明       | 主要配置项                |
+| ---------------------- | ---------- | ------------------------- |
+| `_config.yml`          | Hexo主配置 | 站点信息、URL、主题、插件 |
+| `_config.solitude.yml` | 主题配置   | 导航菜单、外观、功能模块  |
+
+### 快速配置
+
+**修改博客信息:**
+
+```yaml
+# _config.yml
+title: 你的博客名
+author: 你的名字
+url: https://your-domain.com
+```
+
+**修改导航菜单:**
+
+```yaml
+# _config.solitude.yml
+nav:
+  menu:
+    首页: /
+    归档: /archives/
+    标签: /tags/
+```
+
+**启用代码压缩:**
+
+```yaml
+# _config.yml (已配置)
+minify:
+  html/css/js: enable: true
+```
+
+详细配置说明请查看 [架构文档](docs/ARCHITECTURE.md#配置文件说明)
 
 ## 📝 许可证
 

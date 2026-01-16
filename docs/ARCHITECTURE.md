@@ -176,3 +176,85 @@ POST /api/rebuild         # 触发Cloudflare构建
 3. 执行 `npm run build`
 4. 部署到Pages
 5. Functions自动更新
+
+---
+
+## 配置文件说明
+
+### \_config.yml (Hexo主配置)
+
+Hexo框架的核心配置文件，包含以下关键设置:
+
+**站点信息**
+
+```yaml
+title: 博客标题
+author: 作者名
+language: zh-CN
+url: https://your-blog.pages.dev
+```
+
+**构建配置**
+
+```yaml
+permalink: :year/:month/:day/:title/ # URL格式
+per_page: 10 # 每页文章数
+theme: solitude # 使用的主题
+```
+
+**插件配置**
+
+```yaml
+# 搜索功能
+search:
+  path: search.xml
+  field: post
+
+# RSS订阅
+feed:
+  type: atom
+  path: atom.xml
+
+# 性能优化
+minify:
+  html/css/js: enable: true  # 代码压缩
+```
+
+### \_config.solitude.yml (主题配置)
+
+Solitude主题的专属配置文件(~1000行)，主要配置:
+
+**基础设置**
+
+- 站点名称、图标
+- 导航菜单
+- 侧边栏
+
+**功能模块**
+
+- 评论系统
+- 搜索功能
+- 社交链接
+- 文章推荐
+
+**外观样式**
+
+- 主题色
+- 字体
+- 布局样式
+- 动画效果
+
+**详细配置:** 参考 [Solitude主题文档](https://docs.solitude.js.org/)
+
+---
+
+## 常见配置修改
+
+| 需求           | 修改文件               | 配置项     |
+| -------------- | ---------------------- | ---------- |
+| 修改博客标题   | `_config.yml`          | `title`    |
+| 修改站点URL    | `_config.yml`          | `url`      |
+| 修改导航菜单   | `_config.solitude.yml` | `nav.menu` |
+| 修改主题颜色   | `_config.solitude.yml` | `theme`    |
+| 启用评论       | `_config.solitude.yml` | `comment`  |
+| 修改每页文章数 | `_config.yml`          | `per_page` |
