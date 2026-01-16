@@ -1,0 +1,54 @@
+{
+  "name": "blog-hexo-cf",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "download-r2": "node scripts/download-r2-posts.js",
+    "build": "npm run download-r2 && hexo clean && hexo generate",
+    "clean": "hexo clean",
+    "deploy": "hexo deploy",
+    "server": "hexo server",
+    "admin": "node admin/server.js",
+    "dev": "hexo server --draft",
+    "start": "npm run server",
+    "admin:dev": "nodemon admin/server.js",
+    "preview": "npm run build && npm run server",
+    "new": "hexo new",
+    "publish": "hexo publish",
+    "lint": "eslint 'functions/**/*.js' 'admin/**/*.js' 'scripts/**/*.js'",
+    "format": "prettier --write '**/*.{js,json,md,yml}'",
+    "ci:build": "npm run download-r2 && hexo clean && hexo generate",
+    "ci:deploy": "npm run ci:build",
+    "deploy:cf": "npm run build && npx wrangler pages deploy public --project-name=blog-hexo-cf"
+  },
+  "hexo": {
+    "version": "8.1.1"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.969.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "hexo": "^8.0.0",
+    "hexo-generator-archive": "^2.0.0",
+    "hexo-generator-category": "^2.0.0",
+    "hexo-generator-feed": "^3.0.0",
+    "hexo-generator-index": "^4.0.0",
+    "hexo-generator-searchdb": "^1.4.1",
+    "hexo-generator-tag": "^2.0.0",
+    "hexo-renderer-ejs": "^2.0.0",
+    "hexo-renderer-marked": "^7.0.0",
+    "hexo-renderer-stylus": "^3.0.1",
+    "hexo-server": "^3.0.0",
+    "hexo-theme-solitude": "^3.0.21",
+    "multer": "^2.0.2"
+  },
+  "devDependencies": {
+    "cross-env": "^10.1.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "hexo-all-minifier": "^0.5.7",
+    "nodemon": "^3.1.11",
+    "prettier": "^3.8.0"
+  }
+}
