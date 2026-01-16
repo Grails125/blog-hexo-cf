@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "download-r2": "node scripts/download-r2-posts.js",
-    "build": "npm run download-r2 && hexo clean && hexo generate",
+    "build": "hexo clean && hexo generate",
+    "build:full": "npm run download-r2 && hexo clean && hexo generate",
     "clean": "hexo clean",
     "deploy": "hexo deploy",
     "server": "hexo server",
