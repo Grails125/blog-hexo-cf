@@ -1,6 +1,6 @@
 /**
  * 文章编辑器页面
- * GET /admin-new/editor - 新版文章编辑器
+ * GET /admin/editor - 新版文章编辑器
  */
 
 const editorHTML = `<!DOCTYPE html>
@@ -40,7 +40,7 @@ const editorHTML = `<!DOCTYPE html>
     >
       <div class="flex items-center gap-3">
         <button
-          onclick="window.location.href='/admin-new'"
+          onclick="window.location.href='/admin'"
           class="text-slate-500 hover:text-slate-700 transition"
         >
           <svg

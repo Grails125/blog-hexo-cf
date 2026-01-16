@@ -69,7 +69,7 @@ const loginHTML = `<!DOCTYPE html>
 
         if (data.success) {
           localStorage.setItem('admin_token', data.token);
-          window.location.href = '/admin-new';
+          window.location.href = '/admin';
         } else {
           errorDiv.textContent = data.error || '登录失败';
           errorDiv.classList.remove('hidden');
@@ -85,7 +85,7 @@ const loginHTML = `<!DOCTYPE html>
 
     // 检查是否已登录
     if (localStorage.getItem('admin_token')) {
-      window.location.href = '/admin-new';
+      window.location.href = '/admin';
     }
   </script>
 </body>
