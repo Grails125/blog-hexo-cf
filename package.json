@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "download-r2": "node scripts/download-r2-posts.js",
+    "download-r2": "node tools/download-r2-posts.js",
     "build": "hexo clean && hexo generate",
     "build:full": "npm run download-r2 && hexo clean && hexo generate",
     "clean": "hexo clean",
@@ -16,7 +16,7 @@
     "preview": "npm run build && npm run server",
     "new": "hexo new",
     "publish": "hexo publish",
-    "lint": "eslint 'functions/**/*.js' 'admin/**/*.js' 'scripts/**/*.js'",
+    "lint": "eslint 'functions/**/*.js' 'admin/**/*.js' 'tools/**/*.js'",
     "format": "prettier --write '**/*.{js,json,md,yml}'",
     "ci:build": "npm run download-r2 && hexo clean && hexo generate",
     "ci:deploy": "npm run ci:build",

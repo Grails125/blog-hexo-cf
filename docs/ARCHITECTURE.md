@@ -49,8 +49,10 @@ blog/
 ├── admin/              # 本地管理后台
 │   ├── server.js      # Express服务器
 │   └── static/        # 静态资源
-├── scripts/            # 构建脚本
-│   └── download-r2-posts.js  # 从R2下载文章
+├── tools/              # 独立工具脚本
+│   ├── download-r2-posts.js  # 从R2下载文章
+│   └── deploy.js      # 部署脚本
+├── scripts/            # Hexo插件脚本(自动加载)
 ├── .env.example       # 环境变量模板
 └── package.json       # 项目配置
 ```

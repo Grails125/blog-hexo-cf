@@ -78,10 +78,10 @@ npm run dev
 
 ```bash
 # 完整构建(含R2同步)
-npm run build
+npm run build:full
 
-# 仅Hexo构建
-hexo generate
+# 标准构建(仅Hexo)
+npm run build
 
 # 清理缓存
 npm run clean
@@ -110,11 +110,12 @@ npm run clean
 
 ### 构建命令
 
-| 命令                  | 说明         |
-| --------------------- | ------------ |
-| `npm run build`       | 完整构建     |
-| `npm run clean`       | 清理缓存     |
-| `npm run download-r2` | 从R2下载文章 |
+| 命令                  | 说明               |
+| --------------------- | ------------------ |
+| `npm run build`       | 标准构建(仅Hexo)   |
+| `npm run build:full`  | 完整构建(含R2同步) |
+| `npm run clean`       | 清理缓存           |
+| `npm run download-r2` | 从R2下载文章       |
 
 ### 质量命令
 
@@ -166,7 +167,7 @@ npm run new "我的新文章"
 npm run dev
 
 # 4. 构建
-npm run build
+npm run build:full
 ```
 
 ### 修改主题配置

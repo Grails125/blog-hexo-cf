@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * 一键部署到 Cloudflare Pages
  * 使用方法: npm run deploy:cf

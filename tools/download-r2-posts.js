@@ -6,13 +6,9 @@
  * - R2_ACCESS_KEY_ID: R2 访问密钥 ID
  * - R2_SECRET_ACCESS_KEY: R2 密钥
  */
-import { S3Client, ListObjectsV2Command, GetObjectCommand } from "@aws-sdk/client-s3";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const { S3Client, ListObjectsV2Command, GetObjectCommand } = require("@aws-sdk/client-s3");
+const fs = require("fs");
+const path = require("path");
 
 const client = new S3Client({
   region: "auto",
@@ -77,7 +73,9 @@ async function downloadPosts() {
   }
 }
 
-downloadPosts().catch((error) => {
+(async () => {
+  await downloadPosts();
+})().catch((error) => {
   console.error("Fatal error:", error);
   process.exit(0); // 不要失败,继续构建
 });

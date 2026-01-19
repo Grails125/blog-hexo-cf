@@ -130,9 +130,10 @@ blog-hexo-cf/
 │       └── upload.js      # 文件上传
 ├── admin/                  # 本地管理后台
 │   └── server.js          # Express 服务器
-├── scripts/                # 构建脚本
+├── tools/                  # 独立工具脚本
 │   ├── download-r2-posts.js  # R2 同步
 │   └── deploy.js          # 部署脚本
+├── scripts/                # Hexo 插件脚本(自动加载)
 ├── docs/                   # 项目文档
 │   ├── ARCHITECTURE.md    # 架构说明
 │   ├── DEVELOPMENT.md     # 开发指南
@@ -152,7 +153,8 @@ npm run dev              # 开发服务器(含草稿)
 npm run admin:dev        # 管理后台(热重载)
 
 # 构建
-npm run build            # 完整构建
+npm run build            # 标准构建(仅Hexo)
+npm run build:full       # 完整构建(含R2同步)
 npm run clean            # 清理缓存
 
 # 内容管理
